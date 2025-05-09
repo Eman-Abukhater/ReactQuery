@@ -18,21 +18,31 @@ import { useState } from "react";
 
 const ProductTable = () => {
   const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("title"); // Default sorting by title
+  const [sortOrder, setSortOrder] = useState("asc"); // Default ascending order
   const itemsPerPage = 10;
 
+  // Fetch the data with sorting
   const {
     data,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["products", page],
+    queryKey: ["products", page, sortBy, sortOrder], // Include sorting keys in the query
     queryFn: fetchProducts,
     keepPreviousData: true,
   });
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const handleSort = (column) => {
+    // Toggle sorting direction when the same column is clicked
+    const isAscending = sortBy === column && sortOrder === "asc";
+    setSortBy(column);
+    setSortOrder(isAscending ? "desc" : "asc");
   };
 
   if (isLoading)
@@ -52,7 +62,7 @@ const ProductTable = () => {
 
   return (
     <Box maxWidth="md" mx="auto" mt={5}>
-      <Typography variant="h5" gutterBottom align="center" mb={5} fontWeight='bold'>
+      <Typography variant="h5" gutterBottom align="center" mb={5} fontWeight="bold">
         🛍️ Product Table
       </Typography>
 
@@ -60,10 +70,18 @@ const ProductTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><strong>ID</strong></TableCell>
-              <TableCell><strong>Title</strong></TableCell>
-              <TableCell><strong>Brand</strong></TableCell>
-              <TableCell><strong>Price ($)</strong></TableCell>
+              <TableCell onClick={() => handleSort("id")}>
+                <strong>ID</strong>
+              </TableCell>
+              <TableCell onClick={() => handleSort("title")}>
+                <strong>Title</strong>
+              </TableCell>
+              <TableCell onClick={() => handleSort("brand")}>
+                <strong>Brand</strong>
+              </TableCell>
+              <TableCell onClick={() => handleSort("price")}>
+                <strong>Price ($)</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
