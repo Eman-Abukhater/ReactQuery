@@ -12,18 +12,28 @@ import {
   CircularProgress,
   Alert,
   Box,
+  Pagination,
 } from "@mui/material";
+import { useState } from "react";
 
 const ProductTable = () => {
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
+
   const {
-    data: products,
+    data,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", page],
     queryFn: fetchProducts,
+    keepPreviousData: true,
   });
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   if (isLoading)
     return (
@@ -42,7 +52,7 @@ const ProductTable = () => {
 
   return (
     <Box maxWidth="md" mx="auto" mt={5}>
-      <Typography variant="h4" gutterBottom align="center" mb={5} fontWeight='bold'>
+      <Typography variant="h5" gutterBottom align="center" mb={5} fontWeight='bold'>
         🛍️ Product Table
       </Typography>
 
@@ -57,7 +67,7 @@ const ProductTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((p) => (
+            {data.products.map((p) => (
               <TableRow key={p.id}>
                 <TableCell>{p.id}</TableCell>
                 <TableCell>{p.title}</TableCell>
@@ -68,6 +78,15 @@ const ProductTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box display="flex" justifyContent="center" mt={3}>
+        <Pagination
+          count={Math.ceil(data.total / itemsPerPage)}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
     </Box>
   );
 };
