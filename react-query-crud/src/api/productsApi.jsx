@@ -40,3 +40,21 @@ export const fetchProducts = async ({ queryKey }) => {
     total: data.total,
   };
 };
+
+export const deleteProduct = async (id) => {
+  const res = await fetch(`https://dummyjson.com/products/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete product");
+  return res.json(); // returns deleted product
+};
+
+export const updateProduct = async (product) => {
+  const res = await fetch(`https://dummyjson.com/products/${product.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(product),
+  });
+  if (!res.ok) throw new Error("Failed to update product");
+  return res.json(); // returns updated product
+};

@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchProducts } from "../api/productsApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchProducts,
+  deleteProduct,
+  updateProduct,
+} from "../api/productsApi";
 import {
   Table,
   TableHead,
@@ -14,6 +19,7 @@ import {
   Box,
   Pagination,
   TextField,
+  Button,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -23,6 +29,29 @@ const ProductTable = () => {
   const [sortOrder, setSortOrder] = useState("asc"); // Default ascending order
   const [search, setSearch] = useState(""); // Search state
   const itemsPerPage = 10;
+
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      alert("Product deleted");
+      queryClient.invalidateQueries(["products"]); // refetch products
+    },
+    onError: () => {
+      alert("Delete failed");
+    },
+  });
+  const updateMutation = useMutation({
+    mutationFn: updateProduct,
+    onSuccess: () => {
+      alert("Product updated");
+      queryClient.invalidateQueries(["products"]);
+    },
+    onError: () => {
+      alert("Update failed");
+    },
+  });
 
   // Fetch the data with sorting
   const { data, isLoading, isError, error } = useQuery({
@@ -98,6 +127,9 @@ const ProductTable = () => {
               <TableCell onClick={() => handleSort("price")}>
                 <strong>Price ($)</strong>
               </TableCell>
+              <TableCell>
+                <strong>Actions</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -107,6 +139,31 @@ const ProductTable = () => {
                 <TableCell>{p.title}</TableCell>
                 <TableCell>{p.brand}</TableCell>
                 <TableCell>{p.price}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={() => deleteMutation.mutate(p.id)}
+                  >
+                    Delete
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() =>
+                      updateMutation.mutate({
+                        ...p,
+                        title: p.title + " (Updated)",
+                      })
+                    }
+                    style={{ marginLeft: 8 }}
+                  >
+                    Update
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
