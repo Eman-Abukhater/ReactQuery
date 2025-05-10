@@ -13,6 +13,7 @@ import {
   Alert,
   Box,
   Pagination,
+  TextField,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -20,16 +21,12 @@ const ProductTable = () => {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("title"); // Default sorting by title
   const [sortOrder, setSortOrder] = useState("asc"); // Default ascending order
+  const [search, setSearch] = useState(""); // Search state
   const itemsPerPage = 10;
 
   // Fetch the data with sorting
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["products", page, sortBy, sortOrder], // Include sorting keys in the query
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["products", page, sortBy, sortOrder, search],
     queryFn: fetchProducts,
     keepPreviousData: true,
   });
@@ -37,7 +34,10 @@ const ProductTable = () => {
   const handlePageChange = (event, value) => {
     setPage(value);
   };
-
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(1); // Reset to first page on new search
+  };
   const handleSort = (column) => {
     // Toggle sorting direction when the same column is clicked
     const isAscending = sortBy === column && sortOrder === "asc";
@@ -62,9 +62,25 @@ const ProductTable = () => {
 
   return (
     <Box maxWidth="md" mx="auto" mt={5}>
-      <Typography variant="h5" gutterBottom align="center" mb={5} fontWeight="bold">
+      <Typography
+        variant="h5"
+        gutterBottom
+        align="center"
+        mb={5}
+        fontWeight="bold"
+      >
         🛍️ Product Table
       </Typography>
+
+      <Box mb={3}>
+        <TextField
+          label="Search by title or brand"
+          variant="outlined"
+          fullWidth
+          value={search}
+          onChange={handleSearchChange}
+        />
+      </Box>
 
       <TableContainer component={Paper} elevation={3}>
         <Table>

@@ -1,9 +1,19 @@
 export const fetchProducts = async ({ queryKey }) => {
-  const [_key, page, sortBy, sortOrder] = queryKey;
+  const [_key, page, sortBy, sortOrder, search] = queryKey;
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const res = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);
+  let url;
+
+  if (search) {
+    // If there's a search query, use the search endpoint
+    url = `https://dummyjson.com/products/search?q=${search}&limit=${limit}&skip=${skip}`;
+  } else {
+    // Default listing
+    url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
+  }
+
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch products");
 
   const data = await res.json();
